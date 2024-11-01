@@ -1,93 +1,97 @@
-# rubrique
+# Projet de Gestion de Contacts - JavaFX
 
+Bienvenue dans le projet de **Gestion de Contacts**, une application de bureau développée en Java utilisant JavaFX. Cette application permet de gérer une liste de contacts avec des fonctionnalités de création, modification, suppression, ainsi que la possibilité de charger et de sauvegarder les données dans des fichiers sur le disque dur.
 
+## Table des Matières
+- [Aperçu du Projet](#aperçu-du-projet)
+- [Fonctionnalités](#fonctionnalites)
+- [Prérequis](#prerequis)
+- [Installation](#installation)
+- [Lancement de l'Application](#lancement-de-lapplication)
+- [Structure du Projet](#structure-du-projet)
+- [Chargement et Sauvegarde de Fichiers](#chargement-et-sauvegarde-de-fichiers)
+- [Captures d'Écran](#captures-decran)
+- [Resume](#resume)
 
-## Getting started
+## Aperçu du Projet
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Ce projet est une application de bureau pour la gestion de contacts, permettant à l'utilisateur d'ajouter de nouveaux contacts, de les éditer, de supprimer des entrées existantes et de visualiser les détails de chaque contact dans une interface utilisateur conviviale. De plus, l'application permet de **charger des contacts depuis un fichier** et de **sauvegarder la liste de contacts dans un fichier** sur le disque dur.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## Fonctionnalités
 
-## Add your files
+- **Ajouter un contact** : Enregistrez de nouveaux contacts avec des informations telles que le prénom, le nom, l'adresse et la date de naissance.
+- **Modifier un contact** : Mettez à jour les informations de contacts existants.
+- **Supprimer un contact** : Retirez les contacts de la liste.
+- **Recherche et Filtrage** : Filtrez la liste de contacts en fonction des critères spécifiés.
+- **Charger et Sauvegarder les Contacts** : Chargez une liste de contacts depuis un fichier et sauvegardez les données modifiées dans un fichier sur le disque dur.
+- **Interface Utilisateur Moderne** : Une interface graphique intuitive utilisant JavaFX.
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+## Prérequis
 
-```
-cd existing_repo
-git remote add origin https://gitlab.com/matteobotturi/rubrique.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.com/matteobotturi/rubrique/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+- **Java** : Version 11 ou supérieure.
+- **JavaFX** : JavaFX doit être installé et configuré si vous utilisez JDK 8.
+- **Maven** : Pour gérer les dépendances et construire le projet.
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+1. Clonez le dépôt sur votre machine locale :
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+```shell script
+   git clone https://github.com/votre_nom_dutilisateur/nom_du_projet.git
+   cd nom_du_projet
+```
+   
+2. Assurez-vous que toutes les dépendances sont installées. Si vous utilisez Maven, exécutez :
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+```shell script
+   mvn clean install
+```
+   
+## Lancement de l'Application
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+Pour lancer l'application, vous pouvez exécuter la commande suivante depuis le répertoire du projet :
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+```shell script
+   mvn javafx:run
+```
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+Assurez-vous que Java et JavaFX sont correctement configurés sur votre environnement.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+## Structure du Projet
 
-## License
-For open source projects, say how it is licensed.
+Voici un aperçu de la structure des dossiers principaux dans ce projet :
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+- **src/main/java** : Contient le code source Java.
+- **controller** : Classes de contrôleurs JavaFX qui gèrent la logique de l'interface utilisateur.
+- **model** : Classes de modèles représentant les données de l'application (ex. Person).
+- **view** : Fichiers FXML pour définir les layouts de l'interface utilisateur.
+- **src/main/resources** : Contient les ressources telles que les fichiers FXML et les styles CSS.
+- **src/test/java** : Contient les tests unitaires pour l'application.
+
+## Chargement et Sauvegarde de Fichiers
+
+L'application offre la possibilité de charger des contacts depuis un fichier et de sauvegarder les modifications dans un fichier. Cela permet de conserver la liste des contacts même après la fermeture de l'application.
+
+- **Charger un fichier** : Vous pouvez importer un fichier contenant des informations de contacts pour les ajouter directement à la liste de l'application.
+- **Sauvegarder dans un fichier** : Les contacts modifiés ou ajoutés peuvent être enregistrés dans un fichier pour une utilisation ultérieure.
+
+## Les formats de fichiers pris en charge sont les suivants :
+
+- **Fichiers texte (.txt)**
+- **Fichiers JSON (.json) (à adapter selon votre implémentation)**
+
+## Captures d'Écran
+
+Incluez ici des captures d'écran de l'application pour montrer l'interface utilisateur et les fonctionnalités principales.
+
+## Resume
+### Ce que ce `README.md` inclut :
+- Une **description générale** du projet et de ses fonctionnalités.
+- Les **instructions d'installation** et de **lancement** de l'application.
+- Des informations sur la **structure du projet** pour aider les autres développeurs à comprendre l'organisation du code.
+- Une section sur le **chargement et la sauvegarde de fichiers**, puisque l'application prend en charge ces fonctionnalités.
+- Un appel à la **contribution** pour encourager d'autres développeurs à participer au projet.
+- Une **licence** pour encadrer l'utilisation du code.
+
+J'espère que cela répond à tes attentes ! Si tu souhaites des ajustements supplémentaires, n'hésite pas à demander.
+   
