@@ -46,6 +46,26 @@ public class Person {
 		this.birthday = new SimpleObjectProperty<LocalDate>(LocalDate.of(1999, 2, 21));
 	}
 	
+	/**
+	 * Constructor used more.
+	 * 
+	 * @param firstName
+	 * @param lastName
+	 * @param birthday
+	 */
+	public Person(String firstName, String lastName, LocalDate birthday) {
+		this.firstName = new SimpleStringProperty(firstName);
+		this.lastName = new SimpleStringProperty(lastName);
+		this.birthday = new SimpleObjectProperty<>(birthday);
+		
+		// Some initial dummy data, just for convenient testing.
+		this.street = new SimpleStringProperty("some street");
+		this.postalCode = new SimpleIntegerProperty(1234);
+		this.city = new SimpleStringProperty("some city");
+	}
+	
+	
+	
 	public String getFirstName() {
 		return firstName.get();
 	}
