@@ -1,6 +1,8 @@
 package fr.mb.rubrique.model;
 
 import java.time.LocalDate;
+import java.util.Objects;
+
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -136,5 +138,22 @@ public class Person {
 	
 	public ObjectProperty<LocalDate> birthdayProperty() {
 		return birthday;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(birthday.get(), city.get(), firstName.get(), lastName.get(), postalCode.get(), street.get());
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null || getClass() != obj.getClass())
+			return false;
+		Person other = (Person) obj;
+		return Objects.equals(birthday, other.birthday) && Objects.equals(city, other.city)
+				&& Objects.equals(firstName, other.firstName) && Objects.equals(lastName, other.lastName)
+				&& Objects.equals(postalCode, other.postalCode) && Objects.equals(street, other.street);
 	}
 }
