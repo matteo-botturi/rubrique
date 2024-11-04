@@ -2,7 +2,6 @@ package fr.mb.rubrique.model;
 
 import java.time.LocalDate;
 import java.util.Objects;
-
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;

@@ -1,7 +1,10 @@
 package fr.mb.rubrique;
 
+import java.io.File;
 import java.io.IOException;
 import fr.mb.rubrique.model.Person;
+import fr.mb.rubrique.outil.DirectoryBean;
+import fr.mb.rubrique.view.MenuController;
 import fr.mb.rubrique.view.PersonEditDialogController;
 import fr.mb.rubrique.view.PersonOverviewController;
 import javafx.application.Application;
@@ -19,6 +22,7 @@ public class MainApp extends Application {
 
 	private Stage primaryStage;
 	private BorderPane rootLayout;
+	private DirectoryBean directoryBean;
 	
 	/**
 	 * The data as an observable list of Persons.
@@ -39,14 +43,6 @@ public class MainApp extends Application {
 		personData.add(new Person("Anna", "Best"));
 		personData.add(new Person("Stefan", "Meier"));
 		personData.add(new Person("Martin", "Mueller"));
-	}
-	
-	/**
-	 * Returns the data as an observable list of Persons. 
-	 * @return
-	 */
-	public ObservableList<Person> getPersonData() {
-		return personData;
 	}
 
 	@Override
@@ -72,6 +68,8 @@ public class MainApp extends Application {
 			// Show the scene containing the root layout.
 			Scene scene = new Scene(rootLayout);
 			primaryStage.setScene(scene);
+			MenuController menuController = loader.getController();
+			menuController.setMainApp(this);
 			primaryStage.show();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -138,12 +136,47 @@ public class MainApp extends Application {
 	}
 	
 	/**
+	 * Returns the data as an observable list of Persons. 
+	 * @return
+	 */
+	public ObservableList<Person> getPersonData() {
+		return personData;
+	}
+	
+	/**
 	 * Returns the main stage.
 	 * @return
 	 */
 	public Stage getPrimaryStage() {
 		return primaryStage;
 	}
+	
+	/**
+     * Returns the root layout (BorderPane) of the application.
+     *
+     * @return the root layout
+     */
+    public BorderPane getRootLayout() {
+        return rootLayout;
+    }
+    
+    /**
+     * Returns the directory bean which manages contact data.
+     *
+     * @return the directory bean
+     */
+    public DirectoryBean getDirectoryBean() {
+        return directoryBean;
+    }
+    
+    /**
+     * Sets the directory bean.
+     *
+     * @param file the file to initialize DirectoryBean with
+     */
+    public void setDirectoryBean(File file) {
+        this.directoryBean = new DirectoryBean(file);
+    }
 
 	public static void main(String[] args) {
 		launch();
