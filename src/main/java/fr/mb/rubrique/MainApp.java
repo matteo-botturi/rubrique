@@ -33,16 +33,7 @@ public class MainApp extends Application {
 	 * Constructor
 	 */
 	public MainApp() {
-		// Add some sample data
-		personData.add(new Person("Hans", "Muster"));
-		personData.add(new Person("Ruth", "Mueller"));
-		personData.add(new Person("Heinz", "Kurz"));
-		personData.add(new Person("Cornelia", "Meier"));
-		personData.add(new Person("Werner", "Meyer"));
-		personData.add(new Person("Lydia", "Kunz"));
-		personData.add(new Person("Anna", "Best"));
-		personData.add(new Person("Stefan", "Meier"));
-		personData.add(new Person("Martin", "Mueller"));
+		directoryBean = new DirectoryBean();
 	}
 
 	@Override
@@ -52,7 +43,7 @@ public class MainApp extends Application {
 		this.primaryStage.getIcons().add(new Image("file:resources/images/icon.png"));
 		
 		initRootLayout();
-		showPersonOverview();
+		primaryStage.show();
 	}
 
 	/**
@@ -68,9 +59,10 @@ public class MainApp extends Application {
 			// Show the scene containing the root layout.
 			Scene scene = new Scene(rootLayout);
 			primaryStage.setScene(scene);
+			
 			MenuController menuController = loader.getController();
 			menuController.setMainApp(this);
-			primaryStage.show();
+			this.getDirectoryBean().setSaved(true);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -92,6 +84,7 @@ public class MainApp extends Application {
 			// Give the controller access to the main app.
 	        PersonOverviewController controller = loader.getController();
 	        controller.setMainApp(this);
+	        controller.setPersonData(personData);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -144,6 +137,13 @@ public class MainApp extends Application {
 	}
 	
 	/**
+	 * @param personData the personData to set
+	 */
+	public void setPersonData(ObservableList<Person> personData) {
+		this.personData = personData;
+	}
+
+	/**
 	 * Returns the main stage.
 	 * @return
 	 */
@@ -153,7 +153,6 @@ public class MainApp extends Application {
 	
 	/**
      * Returns the root layout (BorderPane) of the application.
-     *
      * @return the root layout
      */
     public BorderPane getRootLayout() {
@@ -162,7 +161,6 @@ public class MainApp extends Application {
     
     /**
      * Returns the directory bean which manages contact data.
-     *
      * @return the directory bean
      */
     public DirectoryBean getDirectoryBean() {
@@ -171,12 +169,19 @@ public class MainApp extends Application {
     
     /**
      * Sets the directory bean.
-     *
      * @param file the file to initialize DirectoryBean with
      */
     public void setDirectoryBean(File file) {
         this.directoryBean = new DirectoryBean(file);
     }
+
+	/**
+	 * @param directoryBean the directoryBean to set
+	 */
+	public void setDirectoryBean(DirectoryBean directoryBean) {
+		this.directoryBean = directoryBean;
+	    this.personData = directoryBean.getContacts();
+	}
 
 	public static void main(String[] args) {
 		launch();

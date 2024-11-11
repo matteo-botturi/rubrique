@@ -5,13 +5,14 @@ import java.util.List;
 import fr.mb.rubrique.dao.ContactDAO;
 import fr.mb.rubrique.model.Person;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 public class DirectoryBean {
 
-	private final File file;
+	private File file;
     private final ObservableList<Person> contacts;
-    private final ContactDAO contactDAO;
+    private ContactDAO contactDAO;
     private Person personSelected;
     private boolean saved;
 
@@ -27,9 +28,16 @@ public class DirectoryBean {
         // Retrieve all contacts and initialize the ObservableList
         List<Person> allContacts = contactDAO.getAllContacts();
         this.contacts = FXCollections.observableArrayList(allContacts);
+        contacts.addListener((ListChangeListener<Person>) change -> saved = false);
         
         // Initially mark as saved since it's just been loaded from file
         this.saved = true;
+    }
+    
+    public DirectoryBean() {
+        this.contacts = FXCollections.observableArrayList();
+        this.contacts.addListener((ListChangeListener<Person>) change -> saved = false);
+        this.saved = false;
     }
 
     /**
@@ -50,6 +58,10 @@ public class DirectoryBean {
         return personSelected;
     }
     
+    public void setPersonSelected(Person person) {
+        this.personSelected = person;
+    }
+    
     /**
      * Checks if changes are saved.
      *
@@ -60,6 +72,13 @@ public class DirectoryBean {
     }
 
     /**
+	 * @param saved the saved to set
+	 */
+	public void setSaved(boolean saved) {
+		this.saved = saved;
+	}
+
+	/**
      * Returns the name of the file associated with this directory.
      *
      * @return the name of the file, or null if no file is associated
@@ -67,13 +86,22 @@ public class DirectoryBean {
     public String getFileName() {
         return file != null ? file.getName() : null;
     }
+    
+    public void setFile(File selectedFile) {
+        if (selectedFile != null) {
+            this.file = selectedFile;
+            this.contactDAO = new ContactDAO(selectedFile);
+        }
+    }
 
     /**
      * Saves all contacts to the file.
      */
     public void save() {
-        contactDAO.saveContacts(contacts);
-        this.saved = true;
+    	if (file != null && contactDAO != null) {
+            contactDAO.saveContacts(contacts);
+            saved = true;
+        }
     }
 
     /**
@@ -106,5 +134,13 @@ public class DirectoryBean {
     public void removeContact(Person person) {
         contacts.remove(person);
         this.saved = false;
+        System.out.println("Contatto rimosso. Numero di contatti attuale: " + contacts.size());
     }
+    
+    public void reload() {
+        List<Person> allContacts = contactDAO.getAllContacts();
+        contacts.setAll(allContacts);
+        saved = true;
+    }
+
 }

@@ -1,10 +1,13 @@
 package fr.mb.rubrique.view;
 
 import java.io.File;
+import java.util.List;
 import java.util.Optional;
 import fr.mb.rubrique.MainApp;
 import fr.mb.rubrique.model.Person;
 import fr.mb.rubrique.outil.DirectoryBean;
+import fr.mb.rubrique.outil.ParameterBean;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
@@ -16,9 +19,25 @@ import javafx.stage.Stage;
 public class MenuController {
 
     private MainApp mainApp;
+    private ParameterBean parameterBean;
 
     @FXML
+    private MenuItem newMenuItem;
+    
+    @FXML
+    private MenuItem openMenuItem;
+    
+    @FXML
     private MenuItem saveMenuItem;
+    
+    @FXML
+    private MenuItem saveAsMenuItem;
+    
+    @FXML
+    private MenuItem closeMenuItem;
+    
+    @FXML
+    private MenuItem exitMenuItem;
 
     /**
      * Initializes the controller class. This method is automatically called
@@ -27,10 +46,11 @@ public class MenuController {
     @FXML
     private void initialize() {
         // Disable save option initially if no file is open
-        saveMenuItem.setDisable(true);
+        //saveMenuItem.setDisable(true);
+        parameterBean = new ParameterBean();
 
         // Initialize other menu items or settings
-        initializeLayout();
+        updateRecentFilesMenu();
     }
 
     /**
@@ -40,6 +60,7 @@ public class MenuController {
      */
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
+        initializeLayout();
     }
 
     /**
@@ -95,7 +116,6 @@ public class MenuController {
     private void actualizeTitle() {
         String title = mainApp.getPrimaryStage().getTitle();
         
-
         if (mainApp.getDirectoryBean() != null) {
             String fileName = mainApp.getDirectoryBean().getFileName();
         
@@ -105,88 +125,100 @@ public class MenuController {
         mainApp.getPrimaryStage().setTitle(title); 
     }
     
-    private File chooseFile(Stage primaryStage) {
+    private FileChooser chooseFile(String title, String initialDirectoryPath) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select Contact File");
+        fileChooser.setTitle(title);
+        fileChooser.getExtensionFilters().addAll(
+            new FileChooser.ExtensionFilter("Contact Files (*.contact)", "*.contact"),
+            new FileChooser.ExtensionFilter("Text Files (*.txt)", "*.txt")
+        );
         
-        FileChooser.ExtensionFilter contactFilter = new FileChooser.ExtensionFilter("Contact Files (*.contact)", "*.contact");
-        FileChooser.ExtensionFilter textFilter = new FileChooser.ExtensionFilter("Text Files (*.txt)", "*.txt");
-        fileChooser.getExtensionFilters().addAll(contactFilter, textFilter);
-        
-        return fileChooser.showOpenDialog(primaryStage);
+        if (initialDirectoryPath != null && !initialDirectoryPath.isEmpty()) {
+            File initialDirectory = new File(initialDirectoryPath);
+            if (initialDirectory.exists()) {
+                fileChooser.setInitialDirectory(initialDirectory);
+            }
+        }
+        return fileChooser;
     }
     
     @FXML
-    private void openFile() {
+    private void handleNew() {
         if (mainApp.getDirectoryBean() != null && !mainApp.getDirectoryBean().isSaved()) {
             boolean shouldSave = promptToSave();
-            if (shouldSave)
+            if (shouldSave) {
                 mainApp.getDirectoryBean().save();
+            }
         }
-
-        File selectedFile = chooseFile(mainApp.getPrimaryStage());
+        mainApp.setDirectoryBean(new DirectoryBean());
+        mainApp.showPersonOverview();
+    }
+    
+    @FXML
+    private void handleOpen() {
+        FileChooser fileChooser = chooseFile("Open Contact File", parameterBean.getLastDirectory());
+        File selectedFile = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
         if (selectedFile != null) {
-            mainApp.setDirectoryBean(selectedFile);
-            
-            actualizeTitle(); 
+            mainApp.setDirectoryBean(new DirectoryBean(selectedFile));
+            mainApp.setPersonData(mainApp.getDirectoryBean().getContacts());
+            mainApp.showPersonOverview();
+            actualizeTitle();
+            parameterBean.setLastDirectory(selectedFile.getParent());
         }
     }
     
     @FXML
-    private void closeFile() {
-        DirectoryBean directoryBean = mainApp.getDirectoryBean();
-        if (directoryBean != null && !directoryBean.isSaved()) {
-            boolean shouldSave = promptToSave();
-            if (shouldSave)
-                directoryBean.save();
+    private void handleSave() {
+        if (mainApp.getDirectoryBean() != null) {
+            if (mainApp.getDirectoryBean().getFileName() == null) {
+                handleSaveAs();
+            } else {
+                mainApp.getDirectoryBean().save();
+                actualizeTitle();
+            }
         }
-        mainApp.setDirectoryBean(null); 
-        mainApp.getRootLayout().setCenter(null); 
-        actualizeTitle();
     }
     
     @FXML
-    private void save() {
-        DirectoryBean directoryBean = mainApp.getDirectoryBean();
-        if (directoryBean != null && !directoryBean.isSaved())
-            directoryBean.save();
+    private void handleSaveAs() {
+        FileChooser fileChooser = chooseFile("Save Contact File As", System.getProperty("user.home"));
+        File selectedFile = fileChooser.showSaveDialog(mainApp.getPrimaryStage());
+
+        if (selectedFile != null) {            
+            mainApp.getDirectoryBean().setFile(selectedFile);
+            mainApp.getDirectoryBean().save();
+            actualizeTitle();
+            parameterBean.setLastDirectory(selectedFile.getParent());
+        }
     }
-    
+
     @FXML
-    private void newFile() {
+    private void handleClose() {
+        if (mainApp.getDirectoryBean() != null) {
+            if (!mainApp.getDirectoryBean().isSaved()) {
+                boolean shouldSave = promptToSave();
+                if (shouldSave) {
+                    mainApp.getDirectoryBean().save();
+                }
+            }
+            mainApp.getRootLayout().setCenter(null);
+        }
+    }
+
+    @FXML
+    private void handleExit() {
         if (mainApp.getDirectoryBean() != null && !mainApp.getDirectoryBean().isSaved()) {
             boolean shouldSave = promptToSave();
-            if (shouldSave)
+            if (shouldSave) {
                 mainApp.getDirectoryBean().save();
+            }
         }
-        mainApp.setDirectoryBean(new File("")); 
-        mainApp.getDirectoryBean().getContacts().clear(); 
-        actualizeTitle();
+        Platform.exit();
     }
-    
-    @FXML
-    private void ajouter() {
-        Person newPerson = new Person(); 
-        boolean okClicked = mainApp.showPersonEditDialog(newPerson);
-        if (okClicked)
-            mainApp.getDirectoryBean().addContact(newPerson);
-    }
-    
-    @FXML
-    private void modifier() {
-        Person selectedPerson = mainApp.getDirectoryBean().getPersonSelected();
-        
-        if (selectedPerson != null) {
-            boolean okClicked = mainApp.showPersonEditDialog(selectedPerson);
-            
-            if (okClicked)
-            	mainApp.getDirectoryBean().updateContact(selectedPerson);
-        } else { 
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("No Selection");
-            alert.setHeaderText("No Contact Selected");
-            alert.setContentText("Please select a contact in the table.");
-            alert.showAndWait();
-        }
+
+    private void updateRecentFilesMenu() {
+        List<String> recentFiles = parameterBean.getRecentFiles();
+        // Codice per aggiornare la sezione "Recent Files" del menu
+        // Ad esempio: crea dei MenuItem per ogni file recente e aggiungili al menu
     }
 }

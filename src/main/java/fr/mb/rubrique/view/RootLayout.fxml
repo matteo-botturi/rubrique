@@ -6,15 +6,15 @@
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane prefHeight="400.0" prefWidth="600.0" stylesheets="@DarkTheme.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane prefHeight="400.0" prefWidth="600.0" stylesheets="@DarkTheme.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.mb.rubrique.view.MenuController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
-                  <MenuItem mnemonicParsing="false" text="New" />
+                  <MenuItem fx:id="newMenuItem" mnemonicParsing="false" onAction="#handleNew" text="New" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" text="Open" />
+                  <MenuItem fx:id="openMenuItem" mnemonicParsing="false" onAction="#handleOpen" text="Open" />
                   <Menu mnemonicParsing="false" text="Recent Files">
                     <items>
                       <MenuItem mnemonicParsing="false" text="File 1" />
@@ -25,17 +25,18 @@
                     </items>
                   </Menu>
                   <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" text="Save" />
-                  <MenuItem mnemonicParsing="false" text="Save As" />
+                  <MenuItem fx:id="saveMenuItem" mnemonicParsing="false" onAction="#handleSave" text="Save" />
+                  <MenuItem fx:id="saveAsMenuItem" mnemonicParsing="false" onAction="#handleSaveAs" text="Save As" />
                   <SeparatorMenuItem mnemonicParsing="false" />
-              <MenuItem mnemonicParsing="false" text="Close" />
-                  <MenuItem mnemonicParsing="false" text="Exit" />
+              <MenuItem fx:id="closeMenuItem" mnemonicParsing="false" onAction="#handleClose" text="Close" />
+                  <MenuItem fx:id="exitMenuItem" mnemonicParsing="false" onAction="#handleExit" text="Exit" />
             </items>
           </Menu>
             <Menu mnemonicParsing="false" text="Edit">
               <items>
-                <MenuItem mnemonicParsing="false" text="Add Contact" />
-                  <MenuItem mnemonicParsing="false" text="Edit Contact" />
+                <MenuItem mnemonicParsing="false" text="Add" />
+                  <MenuItem mnemonicParsing="false" text="Edit" />
+                  <MenuItem mnemonicParsing="false" text="Delete" />
               </items>
             </Menu>
           <Menu mnemonicParsing="false" text="Help">

@@ -3,6 +3,7 @@ package fr.mb.rubrique.view;
 import fr.mb.rubrique.MainApp;
 import fr.mb.rubrique.model.Person;
 import fr.mb.rubrique.outil.DateOutil;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -69,6 +70,10 @@ public class PersonOverviewController {
         personTable.setItems(mainApp.getPersonData());
     }
     
+    public void setPersonData(ObservableList<Person> personData) {
+        personTable.setItems(personData);
+    }
+    
     /**
      * Fills all text fields to show details about the person.
      * If the specified person is null, all text fields are cleared.
@@ -100,11 +105,11 @@ public class PersonOverviewController {
      */
     @FXML
     private void handleDeletePerson() {
-        int selectedIndex = personTable.getSelectionModel().getSelectedIndex();
-        if (selectedIndex >= 0)
-            personTable.getItems().remove(selectedIndex);
-        else {
-            // Nothing selected.
+        Person selectedPerson = personTable.getSelectionModel().getSelectedItem();
+        if (selectedPerson != null) {
+            personTable.getItems().remove(selectedPerson);
+            //mainApp.getDirectoryBean().removeContact(selectedPerson);
+        } else {
             Alert alert = new Alert(AlertType.WARNING);
             alert.initOwner(mainApp.getPrimaryStage());
             alert.setTitle("No Selection");
@@ -122,8 +127,10 @@ public class PersonOverviewController {
     private void handleNewPerson() {
         Person tempPerson = new Person();
         boolean okClicked = mainApp.showPersonEditDialog(tempPerson);
-        if (okClicked)
+        if (okClicked) {
             mainApp.getPersonData().add(tempPerson);
+            //mainApp.getDirectoryBean().addContact(tempPerson);
+        }
     }
     
     /**

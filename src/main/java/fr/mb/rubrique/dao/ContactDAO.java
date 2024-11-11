@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import fr.mb.rubrique.model.Person;
 import fr.mb.rubrique.outil.DateOutil;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class ContactDAO {
@@ -65,7 +66,6 @@ public class ContactDAO {
 
         // Converts the birth date from string to LocalDate if present
         LocalDate birthDate = birthday.isEmpty() ? null : DateOutil.parse(birthday);
-        
         return new Person(firstName, lastName, birthDate);
     }
 

@@ -32,6 +32,10 @@ public class FileContact {
      */
     public List<String> read() {
         List<String> lines = new ArrayList<>();
+
+        if (!file.exists()) 
+            return lines;
+
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -49,10 +53,10 @@ public class FileContact {
      * @param lines the list of lines to write to the file
      */
     public void write(List<String> lines) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, false))) {
             for (String line : lines) {
-                writer.append(line);
-                writer.newLine(); // Adds "0d0a" for line break
+                writer.write(line);
+                writer.newLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
