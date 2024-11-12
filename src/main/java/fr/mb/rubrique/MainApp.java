@@ -84,7 +84,6 @@ public class MainApp extends Application {
 			// Give the controller access to the main app.
 	        PersonOverviewController controller = loader.getController();
 	        controller.setMainApp(this);
-	        controller.setPersonData(personData);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -166,21 +165,16 @@ public class MainApp extends Application {
     public DirectoryBean getDirectoryBean() {
         return directoryBean;
     }
-    
-    /**
-     * Sets the directory bean.
-     * @param file the file to initialize DirectoryBean with
-     */
-    public void setDirectoryBean(File file) {
-        this.directoryBean = new DirectoryBean(file);
-    }
 
 	/**
 	 * @param directoryBean the directoryBean to set
 	 */
 	public void setDirectoryBean(DirectoryBean directoryBean) {
 		this.directoryBean = directoryBean;
-	    this.personData = directoryBean.getContacts();
+		if (directoryBean != null) {
+			this.personData = directoryBean.getContacts();
+		}
+	    
 	}
 
 	public static void main(String[] args) {

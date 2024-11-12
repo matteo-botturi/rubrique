@@ -87,7 +87,14 @@ public class DirectoryBean {
         return file != null ? file.getName() : null;
     }
     
-    public void setFile(File selectedFile) {
+    /**
+	 * @return the file
+	 */
+	public File getFile() {
+		return file;
+	}
+
+	public void setFile(File selectedFile) {
         if (selectedFile != null) {
             this.file = selectedFile;
             this.contactDAO = new ContactDAO(selectedFile);

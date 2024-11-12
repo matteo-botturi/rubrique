@@ -4,9 +4,9 @@ import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import fr.mb.rubrique.MainApp;
-import fr.mb.rubrique.model.Person;
 import fr.mb.rubrique.outil.DirectoryBean;
 import fr.mb.rubrique.outil.ParameterBean;
+import fr.mb.rubrique.outil.TitleUpdater;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -15,6 +15,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class MenuController {
 
@@ -76,7 +77,7 @@ public class MenuController {
                 if (shouldSave)
                     mainApp.getDirectoryBean().save();
             }
-            actualizeTitle();
+            TitleUpdater.updateTitle(mainApp.getPrimaryStage(), mainApp.getDirectoryBean());
         });
 
         // Set up the initial layout with no content in the center
@@ -88,8 +89,9 @@ public class MenuController {
      *
      * @return true if the user chooses to save, false otherwise
      */
-    private boolean promptToSave() {
+    private Boolean promptToSave() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.initStyle(StageStyle.UTILITY);
         alert.setTitle("Unsaved Changes");
         alert.setHeaderText("You have unsaved changes.");
         alert.setContentText("Do you want to save your changes before proceeding?");
@@ -106,23 +108,9 @@ public class MenuController {
                 return true;
             else if (result.get() == discardButton)
                 return false;
+            return null;
         }
-        return false;
-    }
-
-    /**
-     * Updates the window title by appending the file name, if applicable.
-     */
-    private void actualizeTitle() {
-        String title = mainApp.getPrimaryStage().getTitle();
-        
-        if (mainApp.getDirectoryBean() != null) {
-            String fileName = mainApp.getDirectoryBean().getFileName();
-        
-            if (!title.contains(fileName))
-                title += " - " + fileName;
-        } 
-        mainApp.getPrimaryStage().setTitle(title); 
+        return null;
     }
     
     private FileChooser chooseFile(String title, String initialDirectoryPath) {
@@ -152,70 +140,101 @@ public class MenuController {
         }
         mainApp.setDirectoryBean(new DirectoryBean());
         mainApp.showPersonOverview();
+        TitleUpdater.updateTitle(mainApp.getPrimaryStage(), mainApp.getDirectoryBean());
     }
     
     @FXML
     private void handleOpen() {
+    	if (mainApp.getDirectoryBean() != null && !mainApp.getDirectoryBean().isSaved()) {
+            Boolean saveResponse = promptToSave();
+            if (saveResponse == null) 
+                return;
+            else if (saveResponse)
+                mainApp.getDirectoryBean().save();
+        }
+            
         FileChooser fileChooser = chooseFile("Open Contact File", parameterBean.getLastDirectory());
         File selectedFile = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
         if (selectedFile != null) {
             mainApp.setDirectoryBean(new DirectoryBean(selectedFile));
             mainApp.setPersonData(mainApp.getDirectoryBean().getContacts());
             mainApp.showPersonOverview();
-            actualizeTitle();
+            TitleUpdater.updateTitle(mainApp.getPrimaryStage(), mainApp.getDirectoryBean());
             parameterBean.setLastDirectory(selectedFile.getParent());
         }
     }
     
     @FXML
     private void handleSave() {
-        if (mainApp.getDirectoryBean() != null) {
-            if (mainApp.getDirectoryBean().getFileName() == null) {
-                handleSaveAs();
-            } else {
-                mainApp.getDirectoryBean().save();
-                actualizeTitle();
-            }
-        }
+        boolean save = save();
     }
     
     @FXML
     private void handleSaveAs() {
+        boolean saveAs = saveAs();
+    }
+    
+    private boolean save() {
+        if (mainApp.getDirectoryBean() != null) {
+            if (mainApp.getDirectoryBean().getFileName() == null) {
+                return saveAs();
+            } else {
+                mainApp.getDirectoryBean().save();
+                TitleUpdater.updateTitle(mainApp.getPrimaryStage(), mainApp.getDirectoryBean());
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private boolean saveAs() {
         FileChooser fileChooser = chooseFile("Save Contact File As", System.getProperty("user.home"));
         File selectedFile = fileChooser.showSaveDialog(mainApp.getPrimaryStage());
 
         if (selectedFile != null) {            
             mainApp.getDirectoryBean().setFile(selectedFile);
             mainApp.getDirectoryBean().save();
-            actualizeTitle();
+            TitleUpdater.updateTitle(mainApp.getPrimaryStage(), mainApp.getDirectoryBean());
             parameterBean.setLastDirectory(selectedFile.getParent());
+            return true;
         }
+        else
+            return false;         
     }
 
     @FXML
     private void handleClose() {
-        if (mainApp.getDirectoryBean() != null) {
-            if (!mainApp.getDirectoryBean().isSaved()) {
-                boolean shouldSave = promptToSave();
-                if (shouldSave) {
-                    mainApp.getDirectoryBean().save();
-                }
+        if (mainApp.getDirectoryBean() != null && !mainApp.getDirectoryBean().isSaved()) {
+            Boolean shouldSave = promptToSave();
+
+            if (shouldSave == null)
+                return;
+            else if (shouldSave) { 
+                if (!save())
+                    return;
             }
-            mainApp.getRootLayout().setCenter(null);
         }
+        mainApp.setDirectoryBean(null);
+        mainApp.getRootLayout().setCenter(null);
+        TitleUpdater.updateTitle(mainApp.getPrimaryStage(), null);
     }
 
     @FXML
     private void handleExit() {
         if (mainApp.getDirectoryBean() != null && !mainApp.getDirectoryBean().isSaved()) {
-            boolean shouldSave = promptToSave();
-            if (shouldSave) {
-                mainApp.getDirectoryBean().save();
+            Boolean shouldSave = promptToSave();
+
+            if (shouldSave == null) {
+                return;
+            } else if (shouldSave) {
+                if (!save()) {
+                    return;
+                }
             }
+            Platform.exit();
         }
         Platform.exit();
     }
-
     private void updateRecentFilesMenu() {
         List<String> recentFiles = parameterBean.getRecentFiles();
         // Codice per aggiornare la sezione "Recent Files" del menu
