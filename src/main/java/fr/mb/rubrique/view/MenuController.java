@@ -12,6 +12,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -39,6 +40,25 @@ public class MenuController {
     
     @FXML
     private MenuItem exitMenuItem;
+    
+    @FXML
+    private Menu menuRecentsFiles;
+    
+    @FXML
+    private MenuItem recentFile1;
+    
+    @FXML
+    private MenuItem recentFile2;
+    
+    @FXML
+    private MenuItem recentFile3;
+    
+    @FXML
+    private MenuItem recentFile4;
+    
+    @FXML
+    private MenuItem recentFile5;
+    
 
     /**
      * Initializes the controller class. This method is automatically called
@@ -50,8 +70,7 @@ public class MenuController {
         //saveMenuItem.setDisable(true);
         parameterBean = new ParameterBean();
 
-        // Initialize other menu items or settings
-        updateRecentFilesMenu();
+        genererMenuFichierRecent();
     }
 
     /**
@@ -82,6 +101,7 @@ public class MenuController {
 
         // Set up the initial layout with no content in the center
         mainApp.getRootLayout().setCenter(null);
+        TitleUpdater.updateTitle(mainApp.getPrimaryStage(), mainApp.getDirectoryBean());
     }
 
     /**
@@ -117,8 +137,8 @@ public class MenuController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(title);
         fileChooser.getExtensionFilters().addAll(
-            new FileChooser.ExtensionFilter("Contact Files (*.contact)", "*.contact"),
-            new FileChooser.ExtensionFilter("Text Files (*.txt)", "*.txt")
+            new FileChooser.ExtensionFilter("Text Files (*.txt)", "*.txt"),
+            new FileChooser.ExtensionFilter("Contact Files (*.contact)", "*.contact")
         );
         
         if (initialDirectoryPath != null && !initialDirectoryPath.isEmpty()) {
@@ -153,16 +173,23 @@ public class MenuController {
                 mainApp.getDirectoryBean().save();
         }
             
-        FileChooser fileChooser = chooseFile("Open Contact File", parameterBean.getLastDirectory());
-        File selectedFile = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
-        if (selectedFile != null) {
-            mainApp.setDirectoryBean(new DirectoryBean(selectedFile));
-            mainApp.setPersonData(mainApp.getDirectoryBean().getContacts());
-            mainApp.showPersonOverview();
-            TitleUpdater.updateTitle(mainApp.getPrimaryStage(), mainApp.getDirectoryBean());
-            parameterBean.setLastDirectory(selectedFile.getParent());
-        }
+		FileChooser fileChooser = chooseFile("Open Contact File", parameterBean.getLastDirectory());
+		File selectedFile = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
+		if (selectedFile != null) {
+			loadFile(selectedFile);
+			parameterBean.setLastDirectory(selectedFile.getParent());
+	        parameterBean.addRecentFile(selectedFile.getAbsolutePath());
+	        genererMenuFichierRecent();
+		}
     }
+
+	private void loadFile(File selectedFile) {
+		mainApp.setDirectoryBean(new DirectoryBean(selectedFile));
+		mainApp.showPersonOverview();
+		TitleUpdater.updateTitle(mainApp.getPrimaryStage(), mainApp.getDirectoryBean());
+		parameterBean.setLastDirectory(selectedFile.getParent());
+		parameterBean.addRecentFile(selectedFile.getAbsolutePath());
+	}
     
     @FXML
     private void handleSave() {
@@ -196,6 +223,9 @@ public class MenuController {
             mainApp.getDirectoryBean().save();
             TitleUpdater.updateTitle(mainApp.getPrimaryStage(), mainApp.getDirectoryBean());
             parameterBean.setLastDirectory(selectedFile.getParent());
+            parameterBean.addRecentFile(selectedFile.getAbsolutePath());
+            genererMenuFichierRecent();
+            
             return true;
         }
         else
@@ -235,9 +265,42 @@ public class MenuController {
         }
         Platform.exit();
     }
-    private void updateRecentFilesMenu() {
-        List<String> recentFiles = parameterBean.getRecentFiles();
-        // Codice per aggiornare la sezione "Recent Files" del menu
-        // Ad esempio: crea dei MenuItem per ogni file recente e aggiungili al menu
+    
+    public void genererMenuFichierRecent() {
+    	
+        menuRecentsFiles.getItems().clear();
+        
+        List<String> fichiersRecents = parameterBean.getRecentFiles();
+        for (String fichierRecent : fichiersRecents) {
+            MenuItem menuItem = new MenuItem(fichierRecent);
+            
+            menuItem.setOnAction(e -> openFile(fichierRecent));
+            
+            menuRecentsFiles.getItems().add(menuItem);
+        }
+    }
+    
+    public void openFile(String path) {
+        File file = new File(path);
+
+        if (file.exists()) {
+            loadFile(file);
+            
+            parameterBean.setLastDirectory(file.getParent());
+            parameterBean.addRecentFile(file.getAbsolutePath());
+
+            genererMenuFichierRecent();
+        } else {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("File Not Found");
+            alert.setHeaderText(null);
+            alert.setContentText("The file \"" + path + "\" no longer exists.");
+            alert.showAndWait();
+
+            parameterBean.getRecentFiles().remove(path);
+            //parameterBean.saveRecentFiles(parameterBean.getRecentFiles());
+            
+            genererMenuFichierRecent();
+        }
     }
 }

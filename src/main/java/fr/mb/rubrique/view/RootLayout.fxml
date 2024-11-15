@@ -15,13 +15,13 @@
                   <MenuItem fx:id="newMenuItem" mnemonicParsing="false" onAction="#handleNew" text="New" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem fx:id="openMenuItem" mnemonicParsing="false" onAction="#handleOpen" text="Open" />
-                  <Menu mnemonicParsing="false" text="Recent Files">
+                  <Menu fx:id="menuRecentsFiles" mnemonicParsing="false" text="Recent Files">
                     <items>
-                      <MenuItem mnemonicParsing="false" text="File 1" />
-                        <MenuItem mnemonicParsing="false" text="File 2" />
-                        <MenuItem mnemonicParsing="false" text="File 3" />
-                        <MenuItem mnemonicParsing="false" text="File 4" />
-                        <MenuItem mnemonicParsing="false" text="File 5" />
+                      <MenuItem fx:id="recentFile1" mnemonicParsing="false" text="File 1" />
+                        <MenuItem fx:id="recentFile2" mnemonicParsing="false" text="File 2" />
+                        <MenuItem fx:id="recentFile3" mnemonicParsing="false" text="File 3" />
+                        <MenuItem fx:id="recentFile4" mnemonicParsing="false" text="File 4" />
+                        <MenuItem fx:id="recentFile5" mnemonicParsing="false" text="File 5" />
                     </items>
                   </Menu>
                   <SeparatorMenuItem mnemonicParsing="false" />
@@ -32,13 +32,6 @@
                   <MenuItem fx:id="exitMenuItem" mnemonicParsing="false" onAction="#handleExit" text="Exit" />
             </items>
           </Menu>
-            <Menu mnemonicParsing="false" text="Edit">
-              <items>
-                <MenuItem mnemonicParsing="false" text="Add" />
-                  <MenuItem mnemonicParsing="false" text="Edit" />
-                  <MenuItem mnemonicParsing="false" text="Delete" />
-              </items>
-            </Menu>
           <Menu mnemonicParsing="false" text="Help">
             <items>
               <MenuItem mnemonicParsing="false" text="About" />
