@@ -1,6 +1,5 @@
 package fr.mb.rubrique;
 
-import java.io.File;
 import java.io.IOException;
 import fr.mb.rubrique.model.Person;
 import fr.mb.rubrique.outil.DirectoryBean;
@@ -171,10 +170,8 @@ public class MainApp extends Application {
 	 */
 	public void setDirectoryBean(DirectoryBean directoryBean) {
 		this.directoryBean = directoryBean;
-		if (directoryBean != null) {
-			this.personData = directoryBean.getContacts();
-		}
-	    
+		if (directoryBean != null)
+			this.personData = directoryBean.getContacts();	
 	}
 
 	public static void main(String[] args) {

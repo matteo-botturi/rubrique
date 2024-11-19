@@ -1,26 +1,38 @@
 package fr.mb.rubrique.view;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import fr.mb.rubrique.MainApp;
+import fr.mb.rubrique.exceptions.InvalidContactFileFormatException;
 import fr.mb.rubrique.outil.DirectoryBean;
 import fr.mb.rubrique.outil.ParameterBean;
 import fr.mb.rubrique.outil.TitleUpdater;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Duration;
 
 public class MenuController {
 
     private MainApp mainApp;
+    private DirectoryBean directoryBean;
     private ParameterBean parameterBean;
 
     @FXML
@@ -59,6 +71,9 @@ public class MenuController {
     @FXML
     private MenuItem recentFile5;
     
+    @FXML
+    private Label labelOrologe;
+    
 
     /**
      * Initializes the controller class. This method is automatically called
@@ -66,11 +81,45 @@ public class MenuController {
      */
     @FXML
     private void initialize() {
+    	startClock(); // Avvia l'orologio all'inizializzazione
         // Disable save option initially if no file is open
         //saveMenuItem.setDisable(true);
         parameterBean = new ParameterBean();
-
+        disableItems(true);
         genererMenuFichierRecent();
+    }
+    
+    /**
+     * Avvia la `Timeline` per aggiornare l'orologio ogni secondo
+     */
+    private void startClock() {
+        Timeline timeline = new Timeline(
+            new KeyFrame(Duration.millis(1000), e -> updateClock()) // Aggiorna ogni secondo
+        );
+        timeline.setCycleCount(Timeline.INDEFINITE); // Ripetizione indefinita
+        timeline.play(); // Avvia la timeline
+    }
+
+    /**
+     * Metodo per aggiornare il testo dell'orologio con la data e ora attuali
+     */
+    private void updateClock() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE dd MMM yyyy, HH:mm:ss");
+        String formattedDateTime = LocalDateTime.now().format(formatter);
+        labelOrologe.setText(formattedDateTime);
+    }
+    
+    /**
+     * Mostra l'orologio al centro se `showInCenter` è true, altrimenti nel bottom
+     */
+    private void showClockInCenter(boolean showInCenter) {
+        if (showInCenter) {
+            mainApp.getRootLayout().setCenter(labelOrologe);
+            mainApp.getRootLayout().setBottom(null); // Rimuove dal Bottom
+        } else {
+            mainApp.getRootLayout().setBottom(labelOrologe);
+            //mainApp.getRootLayout().setCenter(null); // Rimuove dal Center
+        }
     }
 
     /**
@@ -80,6 +129,7 @@ public class MenuController {
      */
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
+        this.directoryBean = mainApp.getDirectoryBean();
         initializeLayout();
     }
 
@@ -90,18 +140,29 @@ public class MenuController {
         // Get the primary stage from mainApp and set the onCloseRequest action
         Stage primaryStage = mainApp.getPrimaryStage();
         primaryStage.setOnCloseRequest(event -> {
-            if (mainApp.getDirectoryBean() != null && !mainApp.getDirectoryBean().isSaved()) {
+            if (directoryBean != null && !directoryBean.isSaved()) {
                 // Prompt the user to save changes
                 boolean shouldSave = promptToSave();
                 if (shouldSave)
-                    mainApp.getDirectoryBean().save();
+                	directoryBean.save();
             }
-            TitleUpdater.updateTitle(mainApp.getPrimaryStage(), mainApp.getDirectoryBean());
+            TitleUpdater.updateTitle(mainApp.getPrimaryStage(), directoryBean);
         });
 
         // Set up the initial layout with no content in the center
         mainApp.getRootLayout().setCenter(null);
-        TitleUpdater.updateTitle(mainApp.getPrimaryStage(), mainApp.getDirectoryBean());
+        TitleUpdater.updateTitle(mainApp.getPrimaryStage(), directoryBean);
+        mainApp.getRootLayout().setBottom(labelOrologe); // Aggiunge l'orologio in fondo alla finestra
+        updateClock(); // Imposta l'orologio inizialmente
+    }
+    
+    /**
+     * Disattiva o attiva i MenuItem in base allo stato del file
+     */
+    private void disableItems(boolean disable) {
+        saveMenuItem.setDisable(disable);          
+        saveAsMenuItem.setDisable(disable);        
+        menuRecentsFiles.setDisable(parameterBean.getRecentFiles().isEmpty());
     }
 
     /**
@@ -152,41 +213,46 @@ public class MenuController {
     
     @FXML
     private void handleNew() {
-        if (mainApp.getDirectoryBean() != null && !mainApp.getDirectoryBean().isSaved()) {
+    	showClockInCenter(false);
+        if (directoryBean != null && !directoryBean.isSaved()) {
             boolean shouldSave = promptToSave();
             if (shouldSave) {
-                mainApp.getDirectoryBean().save();
+            	directoryBean.save();
             }
         }
         mainApp.setDirectoryBean(new DirectoryBean());
+        directoryBean = mainApp.getDirectoryBean();
         mainApp.showPersonOverview();
-        TitleUpdater.updateTitle(mainApp.getPrimaryStage(), mainApp.getDirectoryBean());
+        TitleUpdater.updateTitle(mainApp.getPrimaryStage(), directoryBean);
+        disableItems(false);
     }
     
     @FXML
     private void handleOpen() {
-    	if (mainApp.getDirectoryBean() != null && !mainApp.getDirectoryBean().isSaved()) {
+        if (directoryBean != null && !directoryBean.isSaved()) {
             Boolean saveResponse = promptToSave();
             if (saveResponse == null) 
                 return;
             else if (saveResponse)
-                mainApp.getDirectoryBean().save();
+                directoryBean.save();
         }
-            
-		FileChooser fileChooser = chooseFile("Open Contact File", parameterBean.getLastDirectory());
-		File selectedFile = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
-		if (selectedFile != null) {
-			loadFile(selectedFile);
-			parameterBean.setLastDirectory(selectedFile.getParent());
-	        parameterBean.addRecentFile(selectedFile.getAbsolutePath());
-	        genererMenuFichierRecent();
-		}
+
+        // Apri il file chooser
+        FileChooser fileChooser = chooseFile("Open Contact File", parameterBean.getLastDirectory());
+        File selectedFile = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
+
+        // Tenta di caricare il file selezionato
+        if (selectedFile != null) {
+            openFile(selectedFile.getAbsolutePath());
+        }
+        disableItems(false);
     }
 
-	private void loadFile(File selectedFile) {
+	private void loadFile(File selectedFile) throws IOException{
 		mainApp.setDirectoryBean(new DirectoryBean(selectedFile));
+		directoryBean = mainApp.getDirectoryBean();
 		mainApp.showPersonOverview();
-		TitleUpdater.updateTitle(mainApp.getPrimaryStage(), mainApp.getDirectoryBean());
+		TitleUpdater.updateTitle(mainApp.getPrimaryStage(), directoryBean);
 		parameterBean.setLastDirectory(selectedFile.getParent());
 		parameterBean.addRecentFile(selectedFile.getAbsolutePath());
 	}
@@ -202,16 +268,54 @@ public class MenuController {
     }
     
     private boolean save() {
-        if (mainApp.getDirectoryBean() != null) {
-            if (mainApp.getDirectoryBean().getFileName() == null) {
+        if (directoryBean != null) {
+            // Verifica se il file ha subito modifiche
+            if (!directoryBean.isSaved()) {
+                // Mostra un alert per confermare il salvataggio
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Salvataggio Modifiche");
+                alert.setHeaderText("Modifiche trovate");
+                alert.setContentText("Il file \"" + (directoryBean.getFileName() != null ? directoryBean.getFileName() : "Nuovo File") + "\" ha subito modifiche. Vuoi salvare?");
+                
+                ButtonType saveButton = new ButtonType("Salva");
+                ButtonType dontSaveButton = new ButtonType("Non Salvare", ButtonBar.ButtonData.CANCEL_CLOSE);
+                alert.getButtonTypes().setAll(saveButton, dontSaveButton);
+
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isPresent() && result.get() == saveButton) {
+                    // Salva il file se l'utente ha scelto "Salva"
+                    if (directoryBean.getFileName() == null) {
+                        return saveAs(); // Chiede di specificare un percorso se è un nuovo file
+                    } else {
+                        directoryBean.save();
+                        TitleUpdater.updateTitle(mainApp.getPrimaryStage(), directoryBean);
+                        return true;
+                    }
+                } else {
+                    // L'utente ha scelto "Non Salvare" o ha chiuso l'alert
+                    return false;
+                }
+            } else if (directoryBean.getFileName() == null) {
+                // Se il file non ha un nome, richiede di specificarlo con "Salva con nome"
                 return saveAs();
             } else {
-                mainApp.getDirectoryBean().save();
-                TitleUpdater.updateTitle(mainApp.getPrimaryStage(), mainApp.getDirectoryBean());
+                // Salva direttamente se il file è stato modificato ma ha già un nome
+                directoryBean.save();
+                TitleUpdater.updateTitle(mainApp.getPrimaryStage(), directoryBean);
+                showSaveSuccessAlert();
                 return true;
             }
         }
-        return false;
+        return false; // Restituisce false se non c'è nessun `DirectoryBean` da salvare
+    }
+    
+ // Metodo per mostrare l'alert "Salvataggio eseguito"
+    private void showSaveSuccessAlert() {
+        Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+        successAlert.setTitle("Salvataggio Completato");
+        successAlert.setHeaderText(null);
+        successAlert.setContentText("Salvataggio eseguito con successo.");
+        successAlert.showAndWait();
     }
     
     private boolean saveAs() {
@@ -219,9 +323,9 @@ public class MenuController {
         File selectedFile = fileChooser.showSaveDialog(mainApp.getPrimaryStage());
 
         if (selectedFile != null) {            
-            mainApp.getDirectoryBean().setFile(selectedFile);
-            mainApp.getDirectoryBean().save();
-            TitleUpdater.updateTitle(mainApp.getPrimaryStage(), mainApp.getDirectoryBean());
+        	directoryBean.setFile(selectedFile);
+        	directoryBean.save();
+            TitleUpdater.updateTitle(mainApp.getPrimaryStage(), directoryBean);
             parameterBean.setLastDirectory(selectedFile.getParent());
             parameterBean.addRecentFile(selectedFile.getAbsolutePath());
             genererMenuFichierRecent();
@@ -234,7 +338,8 @@ public class MenuController {
 
     @FXML
     private void handleClose() {
-        if (mainApp.getDirectoryBean() != null && !mainApp.getDirectoryBean().isSaved()) {
+    	//showClockInCenter(true);
+        if (directoryBean != null && !directoryBean.isSaved()) {
             Boolean shouldSave = promptToSave();
 
             if (shouldSave == null)
@@ -245,13 +350,17 @@ public class MenuController {
             }
         }
         mainApp.setDirectoryBean(null);
+        directoryBean = mainApp.getDirectoryBean();
         mainApp.getRootLayout().setCenter(null);
+        initializeLayout();
         TitleUpdater.updateTitle(mainApp.getPrimaryStage(), null);
+        disableItems(true);
+        
     }
 
     @FXML
     private void handleExit() {
-        if (mainApp.getDirectoryBean() != null && !mainApp.getDirectoryBean().isSaved()) {
+        if (directoryBean != null && !directoryBean.isSaved()) {
             Boolean shouldSave = promptToSave();
 
             if (shouldSave == null) {
@@ -282,25 +391,49 @@ public class MenuController {
     
     public void openFile(String path) {
         File file = new File(path);
-
-        if (file.exists()) {
-            loadFile(file);
+        try {
+            // Verifica che il file esista e rispetti il formato atteso
+            if (!file.exists()) {
+                throw new FileNotFoundException("File non trovato: " + file.getAbsolutePath());
+            }
             
+            if (!isValidContactFile(file)) {
+                throw new InvalidContactFileFormatException("Il file non rispetta il formato dei contatti");
+            }
+
+            // Se il file è valido, lo carica
+            loadFile(file);
             parameterBean.setLastDirectory(file.getParent());
             parameterBean.addRecentFile(file.getAbsolutePath());
-
             genererMenuFichierRecent();
-        } else {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("File Not Found");
-            alert.setHeaderText(null);
-            alert.setContentText("The file \"" + path + "\" no longer exists.");
-            alert.showAndWait();
 
-            parameterBean.getRecentFiles().remove(path);
-            //parameterBean.saveRecentFiles(parameterBean.getRecentFiles());
+        } catch (FileNotFoundException e) {
+            showAlert("Errore: File non trovato", "Il file \"" + file.getAbsolutePath() + "\" non è più disponibile.");
             
+            // Rimuove il file dalla lista dei recenti
+            parameterBean.getRecentFiles().remove(file.getAbsolutePath());
             genererMenuFichierRecent();
+
+        } catch (InvalidContactFileFormatException e) {
+            showAlert("Errore: Formato File non corretto", "Il file \"" + file.getAbsolutePath() + "\" non rispetta il formato richiesto.");
+
+        } catch (IOException e) {
+            showAlert("Errore di lettura del file", "Si è verificato un errore durante l'apertura del file: " + file.getAbsolutePath());
         }
+    }
+    
+    private boolean isValidContactFile(File file) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line = reader.readLine();
+            return line != null && line.contains("|"); // Esempio di controllo del formato
+        }
+    }
+    
+    private void showAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }

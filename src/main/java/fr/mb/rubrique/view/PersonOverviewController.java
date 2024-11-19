@@ -3,6 +3,7 @@ package fr.mb.rubrique.view;
 import fr.mb.rubrique.MainApp;
 import fr.mb.rubrique.model.Person;
 import fr.mb.rubrique.outil.DateOutil;
+import fr.mb.rubrique.outil.DirectoryBean;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -10,6 +11,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 
 public class PersonOverviewController {
     @FXML
@@ -30,9 +32,15 @@ public class PersonOverviewController {
     private Label cityLabel;
     @FXML
     private Label birthdayLabel;
+    @FXML
+    private TextField textFieldNomRecherche;
+    @FXML
+    private TextField textFieldPrenomRecherche;
     // Reference to the main application.
     private MainApp mainApp;
-
+    
+    private DirectoryBean directoryBean; 
+    
     /**
      * The constructor.
      * The constructor is called before the initialize() method.
@@ -56,6 +64,19 @@ public class PersonOverviewController {
         // Listen for selection changes and show the person details when changed.
         personTable.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> showPersonDetails(newValue));
+        
+        textFieldNomRecherche.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (directoryBean != null) {
+                directoryBean.setNamePersonSearched(newValue); // Aggiorna la ricerca del nome
+            }
+        });
+
+        // Listener per il campo di ricerca del cognome
+        textFieldPrenomRecherche.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (directoryBean != null) {
+                directoryBean.setSurnamePersonSearched(newValue); // Aggiorna la ricerca del cognome
+            }
+        });
     }
 
     /**
@@ -65,10 +86,19 @@ public class PersonOverviewController {
      */
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
+        this.directoryBean = mainApp.getDirectoryBean();
 
         // Add observable list data to the table
-        personTable.setItems(mainApp.getPersonData());
+        personTable.setItems(directoryBean.getSortedContacts());
     }
+    
+    private void debugPersonTable() {
+        System.out.println("Contatti visualizzati nella TableView:");
+        personTable.getItems().forEach(person -> 
+            System.out.println("Contatto: " + person.getFirstName() + " " + person.getLastName())
+        );
+    }
+
     
     /**
      * Fills all text fields to show details about the person.

@@ -7,13 +7,18 @@ import fr.mb.rubrique.model.Person;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 
 public class DirectoryBean {
-
+	
+	private final ObservableList<Person> contacts;
+	private FilteredList<Person> filteredContacts;
+	private SortedList<Person> sortedContacts;
 	private File file;
-    private final ObservableList<Person> contacts;
     private ContactDAO contactDAO;
     private Person personSelected;
+    private Person personSearched;
     private boolean saved;
 
     /**
@@ -32,12 +37,51 @@ public class DirectoryBean {
         
         // Initially mark as saved since it's just been loaded from file
         this.saved = true;
+        
+        this.filteredContacts = new FilteredList<>(contacts, p -> true); // Predicate nullo, tutti i contatti
+        this.sortedContacts = new SortedList<>(filteredContacts); // Lista ordinata basata sulla lista filtrata
+        this.personSearched = new Person(); // Persona per i criteri di ricerca
     }
     
     public DirectoryBean() {
         this.contacts = FXCollections.observableArrayList();
+        this.filteredContacts = new FilteredList<>(contacts, p -> true);
+        this.sortedContacts = new SortedList<>(filteredContacts);
+        this.personSearched = new Person();
         this.contacts.addListener((ListChangeListener<Person>) change -> saved = false);
         this.saved = false;
+    }
+    
+    public ObservableList<Person> getSortedContacts() {
+        return sortedContacts; // Ritorna la lista ordinata e filtrata
+    }
+
+    public void setNamePersonSearched(String name) {
+        personSearched.setFirstName(name.toUpperCase());
+        filtraContatti(); // Applica il filtro
+    }
+
+    public void setSurnamePersonSearched(String surname) {
+        personSearched.setLastName(surname.toUpperCase());
+        filtraContatti(); // Applica il filtro
+    }
+
+    private void filtraContatti() {
+    	
+        filteredContacts.setPredicate(person -> {
+            boolean matchName = true;
+            boolean matchSurname = true;
+
+            if (personSearched.getFirstName() != null && !personSearched.getFirstName().isEmpty()) {
+                matchName = person.getFirstName().toUpperCase().contains(personSearched.getFirstName());
+            }
+            if (personSearched.getLastName() != null && !personSearched.getLastName().isEmpty()) {
+                matchSurname = person.getLastName().toUpperCase().contains(personSearched.getLastName());
+            }
+            
+            
+            return matchName && matchSurname;
+        });
     }
 
     /**
@@ -141,7 +185,6 @@ public class DirectoryBean {
     public void removeContact(Person person) {
         contacts.remove(person);
         this.saved = false;
-        System.out.println("Contatto rimosso. Numero di contatti attuale: " + contacts.size());
     }
     
     public void reload() {

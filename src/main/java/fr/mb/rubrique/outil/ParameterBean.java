@@ -1,15 +1,14 @@
 package fr.mb.rubrique.outil;
 
 import java.util.List;
-
 import fr.mb.rubrique.dao.ParameterDAO;
 
 public class ParameterBean {
-
+	
+	private static final int MAX_RECENT_FILES = 5;
     private String lastDirectory; 
     private List<String> recentFiles; 
     private final ParameterDAO parameterDAO;
-    private static final int MAX_RECENT_FILES = 5;
 
     public ParameterBean() {
         this.parameterDAO = new ParameterDAO();
