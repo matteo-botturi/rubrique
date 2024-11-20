@@ -1,4 +1,4 @@
-package fr.mb.rubrique.outil;
+package fr.mb.rubrique.utility;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -9,12 +9,16 @@ import java.time.format.DateTimeParseException;
  * 
  * @author Matteo Botturi
  */
-public class DateOutil {
-	/** The date pattern that is used for conversion. Change as you wish. */
+public class DateUtility {
+	/** The date pattern that is used for conversion.*/
 	private static final String DATE_PATTERN = "dd.MM.yyyy";
 	
 	/** The date formatter. */
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_PATTERN);
+	
+	 private DateUtility() {
+	    	throw new UnsupportedOperationException("Utility class");
+	    }
 	
 	/**
      * Returns the given date as a well formatted String. The above defined 
@@ -54,6 +58,6 @@ public class DateOutil {
      */
     public static boolean validDate(String dateString) {
     	// Try to parse the String.
-    	return DateOutil.parse(dateString) != null;
+    	return DateUtility.parse(dateString) != null;
     }
 }

@@ -1,8 +1,10 @@
 package fr.mb.rubrique;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import fr.mb.rubrique.bean.DirectoryBean;
 import fr.mb.rubrique.model.Person;
-import fr.mb.rubrique.outil.DirectoryBean;
 import fr.mb.rubrique.view.MenuController;
 import fr.mb.rubrique.view.PersonEditDialogController;
 import fr.mb.rubrique.view.PersonOverviewController;
@@ -18,6 +20,13 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class MainApp extends Application {
+	
+	private static final Logger LOGGER = Logger.getLogger(MainApp.class.getName());
+
+    private static final String ROOT_LAYOUT_FXML = "view/RootLayout.fxml";
+    private static final String PERSON_OVERVIEW_FXML = "view/PersonOverview.fxml";
+    private static final String PERSON_EDIT_DIALOG_FXML = "view/PersonEditDialog.fxml";
+    private static final String APP_ICON_PATH = "file:resources/images/icon.png";
 
 	private Stage primaryStage;
 	private BorderPane rootLayout;
@@ -29,8 +38,8 @@ public class MainApp extends Application {
 	private ObservableList<Person> personData = FXCollections.observableArrayList();
 	
 	/**
-	 * Constructor
-	 */
+     * Constructor. Initializes the directory bean.
+     */
 	public MainApp() {
 		directoryBean = new DirectoryBean();
 	}
@@ -39,7 +48,7 @@ public class MainApp extends Application {
 	public void start(Stage primaryStage) {
 		this.primaryStage = primaryStage;
 		this.primaryStage.setTitle("Rubrique de contacts");
-		this.primaryStage.getIcons().add(new Image("file:resources/images/icon.png"));
+		this.primaryStage.getIcons().add(new Image(APP_ICON_PATH));
 		
 		initRootLayout();
 		primaryStage.show();
@@ -52,18 +61,21 @@ public class MainApp extends Application {
 		try {
 			// Load root layout from fxml file.
 			FXMLLoader loader = new FXMLLoader();
-			loader.setLocation(MainApp.class.getResource("view/RootLayout.fxml"));
+			loader.setLocation(MainApp.class.getResource(ROOT_LAYOUT_FXML));
 			rootLayout = (BorderPane) loader.load();
 
 			// Show the scene containing the root layout.
 			Scene scene = new Scene(rootLayout);
 			primaryStage.setScene(scene);
 			
+			// Pass the main app reference to the controller
 			MenuController menuController = loader.getController();
 			menuController.setMainApp(this);
-			this.getDirectoryBean().setSaved(true);
+			
+			// Set the initial state of the directory bean
+			directoryBean.setSaved(true);
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, "Failed to load root layout.", e);
 		}
 	}
 
@@ -74,7 +86,7 @@ public class MainApp extends Application {
 		try {
 			// Load person overview.
 			FXMLLoader loader = new FXMLLoader();
-			loader.setLocation(MainApp.class.getResource("view/PersonOverview.fxml"));
+			loader.setLocation(MainApp.class.getResource(PERSON_OVERVIEW_FXML));
 			AnchorPane personOverview = (AnchorPane) loader.load();
 
 			// Set person overview into the center of root layout.
@@ -84,7 +96,7 @@ public class MainApp extends Application {
 	        PersonOverviewController controller = loader.getController();
 	        controller.setMainApp(this);
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, "Failed to load person overview.", e);
 		}
 	}
 	
@@ -100,7 +112,7 @@ public class MainApp extends Application {
 	    try {
 	        // Load the fxml file and create a new stage for the popup dialog.
 	        FXMLLoader loader = new FXMLLoader();
-	        loader.setLocation(MainApp.class.getResource("view/PersonEditDialog.fxml"));
+	        loader.setLocation(MainApp.class.getResource(PERSON_EDIT_DIALOG_FXML));
 	        AnchorPane page = (AnchorPane) loader.load();
 
 	        // Create the dialog Stage.
@@ -121,8 +133,8 @@ public class MainApp extends Application {
 
 	        return controller.isOkClicked();
 	    } catch (IOException e) {
-	        e.printStackTrace();
-	        return false;
+	    	LOGGER.log(Level.SEVERE, "Failed to load person edit dialog.", e);
+            return false;
 	    }
 	}
 	
@@ -133,24 +145,19 @@ public class MainApp extends Application {
 	public ObservableList<Person> getPersonData() {
 		return personData;
 	}
-	
-	/**
-	 * @param personData the personData to set
-	 */
-	public void setPersonData(ObservableList<Person> personData) {
-		this.personData = personData;
-	}
 
 	/**
-	 * Returns the main stage.
-	 * @return
-	 */
+     * Returns the main stage.
+     *
+     * @return the primary stage
+     */
 	public Stage getPrimaryStage() {
 		return primaryStage;
 	}
 	
 	/**
      * Returns the root layout (BorderPane) of the application.
+     * 
      * @return the root layout
      */
     public BorderPane getRootLayout() {
@@ -159,15 +166,18 @@ public class MainApp extends Application {
     
     /**
      * Returns the directory bean which manages contact data.
+     * 
      * @return the directory bean
      */
     public DirectoryBean getDirectoryBean() {
         return directoryBean;
     }
 
-	/**
-	 * @param directoryBean the directoryBean to set
-	 */
+    /**
+     * Sets the directory bean and updates person data.
+     *
+     * @param directoryBean the new directory bean
+     */
 	public void setDirectoryBean(DirectoryBean directoryBean) {
 		this.directoryBean = directoryBean;
 		if (directoryBean != null)

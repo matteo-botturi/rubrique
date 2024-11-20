@@ -8,6 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class handles reading and writing lines of text to and from a file.
@@ -15,6 +17,7 @@ import java.util.List;
 public class FileContact {
 	
 	private final File file;
+	private static final Logger logger = Logger.getLogger(FileContact.class.getName());
 	
 	/**
      * Constructor that takes a file to manipulate lines of text.
@@ -32,18 +35,20 @@ public class FileContact {
      */
     public List<String> read() {
         List<String> lines = new ArrayList<>();
-
-        if (!file.exists()) 
-            return lines;
-
+        
+        if (!file.exists()) {
+        	logger.warning(() -> "File does not exist: " + file.getAbsolutePath());
+        	return lines;
+        }
+        
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
-            while ((line = reader.readLine()) != null) {
+            while ((line = reader.readLine()) != null)
                 lines.add(line);
-            }
         } catch (IOException e) {
-            e.printStackTrace();
+        	logger.log(Level.SEVERE, "Failed to read from file: " + file.getAbsolutePath(), e);
         }
+        
         return lines;
     }
     
@@ -59,7 +64,7 @@ public class FileContact {
                 writer.newLine();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+        	logger.log(Level.SEVERE, "Failed to write to file: " + file.getAbsolutePath(), e);
         }
     }
 }

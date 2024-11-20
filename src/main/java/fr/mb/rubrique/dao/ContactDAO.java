@@ -4,14 +4,16 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import fr.mb.rubrique.model.Person;
-import fr.mb.rubrique.outil.DateOutil;
-import javafx.collections.FXCollections;
+import fr.mb.rubrique.utility.DateUtility;
 import javafx.collections.ObservableList;
 
 public class ContactDAO {
 
     private final FileContact fileContact;
+    private static final Logger logger = Logger.getLogger(ContactDAO.class.getName());
 
     /**
      * Constructor that takes a file to manage contact data.
@@ -32,7 +34,9 @@ public class ContactDAO {
         List<Person> contacts = new ArrayList<>();
 
         for (String line : lines) {
-            contacts.add(stringToPerson(line));
+        	Person person = stringToPerson(line);
+            if (person != null)
+                contacts.add(person);
         }
         return contacts;
     }
@@ -57,16 +61,21 @@ public class ContactDAO {
      * @return a Person object
      */
     private Person stringToPerson(String line) {
-        List<String> parsed = List.of(line.split("\\|"));  // Splits the string by the "|" delimiter
+    	try {
+    		List<String> parsed = List.of(line.split("\\|"));  // Splits the string by the "|" delimiter
         
-        // Assigns values while handling the possibility of missing fields
-        String firstName = parsed.get(0);
-        String lastName = parsed.size() > 1 ? parsed.get(1) : "";
-        String birthday = parsed.size() > 2 ? parsed.get(2) : "";
+    		// Assigns values while handling the possibility of missing fields
+    		String firstName = parsed.get(0);
+    		String lastName = parsed.size() > 1 ? parsed.get(1) : "";
+    		String birthday = parsed.size() > 2 ? parsed.get(2) : "";
 
-        // Converts the birth date from string to LocalDate if present
-        LocalDate birthDate = birthday.isEmpty() ? null : DateOutil.parse(birthday);
-        return new Person(firstName, lastName, birthDate);
+    		// Converts the birth date from string to LocalDate if present
+    		LocalDate birthDate = birthday.isEmpty() ? null : DateUtility.parse(birthday);
+    		return new Person(firstName, lastName, birthDate);
+    	} catch (Exception e) {
+            logger.log(Level.WARNING, "Failed to parse line: " + line, e);
+            return null;
+        }
     }
 
     /**
@@ -76,6 +85,6 @@ public class ContactDAO {
      * @return a CSV string representing the Person object
      */
     private String toCSV(Person person) {
-        return person.getFirstName() + "|" + person.getLastName() + "|" + DateOutil.format(person.getBirthday());
+        return person.getFirstName() + "|" + person.getLastName() + "|" + DateUtility.format(person.getBirthday());
     }
 }

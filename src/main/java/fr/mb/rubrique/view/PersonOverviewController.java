@@ -1,18 +1,21 @@
 package fr.mb.rubrique.view;
 
 import fr.mb.rubrique.MainApp;
+import fr.mb.rubrique.bean.DirectoryBean;
 import fr.mb.rubrique.model.Person;
-import fr.mb.rubrique.outil.DateOutil;
-import fr.mb.rubrique.outil.DirectoryBean;
-import javafx.collections.ObservableList;
+import fr.mb.rubrique.utility.AlertHelper;
+import fr.mb.rubrique.utility.DateUtility;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 
+/**
+ * Controller for the person overview view.
+ * This class manages the interaction between the user and the contact list,
+ * allowing users to view, search, add, edit, and delete contacts.
+ */
 public class PersonOverviewController {
     @FXML
     private TableView<Person> personTable;
@@ -41,16 +44,13 @@ public class PersonOverviewController {
     
     private DirectoryBean directoryBean; 
     
-    /**
-     * The constructor.
-     * The constructor is called before the initialize() method.
-     */
-    public PersonOverviewController() {
-    }
+    /**Constructor. Automatically called before the FXML file is loaded. */
+    public PersonOverviewController() {}
 
     /**
-     * Initializes the controller class. This method is automatically called
-     * after the fxml file has been loaded.
+     * Initializes the controller class.
+     * Automatically called after the FXML file has been loaded.
+     * Sets up the table columns, selection listeners, and search field listeners.
      */
     @FXML
     private void initialize() {
@@ -61,28 +61,39 @@ public class PersonOverviewController {
         // Clear person details.
         showPersonDetails(null);
         
-        // Listen for selection changes and show the person details when changed.
+        // Add listeners for selection and search fields
+        initializeListeners();
+    }
+    
+    /**
+     * Sets up listeners for the person table and search fields.
+     */
+    private void initializeListeners() {
+        // Listener for table selection
         personTable.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> showPersonDetails(newValue));
-        
+            (observable, oldValue, newValue) -> showPersonDetails(newValue)
+        );
+
+        // Listener for search by name
         textFieldNomRecherche.textProperty().addListener((observable, oldValue, newValue) -> {
             if (directoryBean != null) {
-                directoryBean.setNamePersonSearched(newValue); // Aggiorna la ricerca del nome
+                directoryBean.setNamePersonSearched(newValue.trim());
             }
         });
 
-        // Listener per il campo di ricerca del cognome
+        // Listener for search by surname
         textFieldPrenomRecherche.textProperty().addListener((observable, oldValue, newValue) -> {
             if (directoryBean != null) {
-                directoryBean.setSurnamePersonSearched(newValue); // Aggiorna la ricerca del cognome
+                directoryBean.setSurnamePersonSearched(newValue.trim());
             }
         });
     }
 
     /**
-     * Is called by the main application to give a reference back to itself.
-     * 
-     * @param mainApp
+     * Sets the reference to the main application and initializes the data.
+     * Populates the table with the sorted contacts from the directory bean.
+     *
+     * @param mainApp the main application reference
      */
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
@@ -92,19 +103,11 @@ public class PersonOverviewController {
         personTable.setItems(directoryBean.getSortedContacts());
     }
     
-    private void debugPersonTable() {
-        System.out.println("Contatti visualizzati nella TableView:");
-        personTable.getItems().forEach(person -> 
-            System.out.println("Contatto: " + person.getFirstName() + " " + person.getLastName())
-        );
-    }
-
-    
     /**
      * Fills all text fields to show details about the person.
      * If the specified person is null, all text fields are cleared.
-     * 
-     * @param person the person or null
+     *
+     * @param person the person to display, or null to clear the details
      */
     private void showPersonDetails(Person person) {
         if (person != null) {
@@ -114,7 +117,7 @@ public class PersonOverviewController {
             streetLabel.setText(person.getStreet());
             postalCodeLabel.setText(Integer.toString(person.getPostalCode()));
             cityLabel.setText(person.getCity());
-            birthdayLabel.setText(DateOutil.format(person.getBirthday()));
+            birthdayLabel.setText(DateUtility.format(person.getBirthday()));
         } else {
             // Person is null, remove all the text.
             firstNameLabel.setText("");
@@ -128,40 +131,41 @@ public class PersonOverviewController {
     
     /**
      * Called when the user clicks on the delete button.
+     * Removes the selected person from the table and the underlying data model.
+     * If no person is selected, shows a warning alert.
      */
     @FXML
     private void handleDeletePerson() {
         Person selectedPerson = personTable.getSelectionModel().getSelectedItem();
-        if (selectedPerson != null) {
-            personTable.getItems().remove(selectedPerson);
-            //mainApp.getDirectoryBean().removeContact(selectedPerson);
-        } else {
-            Alert alert = new Alert(AlertType.WARNING);
-            alert.initOwner(mainApp.getPrimaryStage());
-            alert.setTitle("No Selection");
-            alert.setHeaderText("No Person Selected");
-            alert.setContentText("Please select a person in the table.");
-            alert.showAndWait();
+        if (selectedPerson != null)
+            directoryBean.getContacts().remove(selectedPerson);
+        else {
+            AlertHelper.showError(
+                "No Selection",
+                "No Person Selected",
+                "Please select a person in the table."
+            );
         }
     }
     
     /**
-     * Called when the user clicks the new button. Opens a dialog to edit
-     * details for a new person.
+     * Called when the user clicks the new button.
+     * Opens a dialog to edit details for a new person.
+     * If the user confirms, the person is added to the data model.
      */
     @FXML
     private void handleNewPerson() {
         Person tempPerson = new Person();
         boolean okClicked = mainApp.showPersonEditDialog(tempPerson);
-        if (okClicked) {
+        if (okClicked)
             mainApp.getPersonData().add(tempPerson);
-            //mainApp.getDirectoryBean().addContact(tempPerson);
-        }
     }
     
     /**
-     * Called when the user clicks the edit button. Opens a dialog to edit
-     * details for the selected person.
+     * Called when the user clicks the edit button.
+     * Opens a dialog to edit details for the selected person.
+     * If no person is selected, shows a warning alert.
+     * If the user confirms the changes, updates the person details in the view.
      */
     @FXML
     private void handleEditPerson() {
@@ -171,13 +175,11 @@ public class PersonOverviewController {
             if (okClicked)
                 showPersonDetails(selectedPerson);
         } else {
-            // Nothing selected.
-            Alert alert = new Alert(AlertType.WARNING);
-            alert.initOwner(mainApp.getPrimaryStage());
-            alert.setTitle("No Selection");
-            alert.setHeaderText("No Person Selected");
-            alert.setContentText("Please select a person in the table.");
-            alert.showAndWait();
+            AlertHelper.showError(
+                "No Selection",
+                "No Person Selected",
+                "Please select a person in the table."
+            );
         }
     }
 }

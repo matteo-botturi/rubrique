@@ -24,7 +24,7 @@ public class Person {
 	private final ObjectProperty<LocalDate> birthday;
 
 	/**
-	 * Default constructor.
+	 * Default constructor. Initializes the person with default test data.
 	 */
 	public Person() {
 		this(null, null);
@@ -64,8 +64,6 @@ public class Person {
 		this.postalCode = new SimpleIntegerProperty(1234);
 		this.city = new SimpleStringProperty("some city");
 	}
-	
-	
 	
 	public String getFirstName() {
 		return firstName.get();
@@ -140,19 +138,32 @@ public class Person {
 	}
 
 	@Override
-	public int hashCode() {
-		return Objects.hash(birthday.get(), city.get(), firstName.get(), lastName.get(), postalCode.get(), street.get());
-	}
+    public int hashCode() {
+        return Objects.hash(getFirstName(), getLastName(), getStreet(), getPostalCode(), getCity(), getBirthday());
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null || getClass() != obj.getClass())
-			return false;
-		Person other = (Person) obj;
-		return Objects.equals(birthday, other.birthday) && Objects.equals(city, other.city)
-				&& Objects.equals(firstName, other.firstName) && Objects.equals(lastName, other.lastName)
-				&& Objects.equals(postalCode, other.postalCode) && Objects.equals(street, other.street);
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Person other = (Person) obj;
+        return Objects.equals(getFirstName(), other.getFirstName()) &&
+               Objects.equals(getLastName(), other.getLastName()) &&
+               Objects.equals(getStreet(), other.getStreet()) &&
+               getPostalCode() == other.getPostalCode() &&
+               Objects.equals(getCity(), other.getCity()) &&
+               Objects.equals(getBirthday(), other.getBirthday());
+    }
+    
+    /**
+     * Validates the person object.
+     *
+     * @param person the person object to validate
+     * @return true if the person has valid data (e.g., non-null first and last name), false otherwise
+     */
+    public static boolean isValid(Person person) {
+        return person != null &&
+               person.getFirstName() != null && !person.getFirstName().isEmpty() &&
+               person.getLastName() != null && !person.getLastName().isEmpty();
+    }
 }
