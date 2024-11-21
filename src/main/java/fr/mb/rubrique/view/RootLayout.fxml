@@ -18,12 +18,6 @@
                   <MenuItem fx:id="openMenuItem" mnemonicParsing="false" onAction="#handleOpen" text="Open" />
                   <Menu fx:id="menuRecentsFiles" mnemonicParsing="false" text="Recent Files">
                     <items>
-                      <MenuItem fx:id="recentFile1" mnemonicParsing="false" text="File 1" />
-                        <MenuItem fx:id="recentFile2" mnemonicParsing="false" text="File 2" />
-                        <MenuItem fx:id="recentFile3" mnemonicParsing="false" text="File 3" />
-                        <MenuItem fx:id="recentFile4" mnemonicParsing="false" text="File 4" />
-                        <MenuItem fx:id="recentFile5" mnemonicParsing="false" text="File 5" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem fx:id="clearRecentFilesMenuItem" mnemonicParsing="false" text="Clear" />
                     </items>
                   </Menu>

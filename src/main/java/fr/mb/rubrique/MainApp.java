@@ -5,7 +5,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import fr.mb.rubrique.bean.DirectoryBean;
 import fr.mb.rubrique.model.Person;
-import fr.mb.rubrique.utility.TitleUpdater;
 import fr.mb.rubrique.view.MenuController;
 import fr.mb.rubrique.view.PersonEditDialogController;
 import fr.mb.rubrique.view.PersonOverviewController;
