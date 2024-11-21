@@ -5,6 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import fr.mb.rubrique.bean.DirectoryBean;
 import fr.mb.rubrique.model.Person;
+import fr.mb.rubrique.utility.TitleUpdater;
 import fr.mb.rubrique.view.MenuController;
 import fr.mb.rubrique.view.PersonEditDialogController;
 import fr.mb.rubrique.view.PersonOverviewController;
@@ -59,7 +60,7 @@ public class MainApp extends Application {
 	 */
 	public void initRootLayout() {
 		try {
-			// Load root layout from fxml file.
+			// Load root layout from FXML file.
 			FXMLLoader loader = new FXMLLoader();
 			loader.setLocation(MainApp.class.getResource(ROOT_LAYOUT_FXML));
 			rootLayout = (BorderPane) loader.load();
@@ -68,7 +69,7 @@ public class MainApp extends Application {
 			Scene scene = new Scene(rootLayout);
 			primaryStage.setScene(scene);
 			
-			// Pass the main app reference to the controller
+			// Pass the MainApp reference to the controller
 			MenuController menuController = loader.getController();
 			menuController.setMainApp(this);
 			
@@ -92,7 +93,7 @@ public class MainApp extends Application {
 			// Set person overview into the center of root layout.
 			rootLayout.setCenter(personOverview);
 			
-			// Give the controller access to the main app.
+			// Give the controller access to the MainApp.
 	        PersonOverviewController controller = loader.getController();
 	        controller.setMainApp(this);
 		} catch (IOException e) {
@@ -110,7 +111,7 @@ public class MainApp extends Application {
 	 */
 	public boolean showPersonEditDialog(Person person) {
 	    try {
-	        // Load the fxml file and create a new stage for the popup dialog.
+	        // Load the FXML file and create a new stage for the pop-up dialog.
 	        FXMLLoader loader = new FXMLLoader();
 	        loader.setLocation(MainApp.class.getResource(PERSON_EDIT_DIALOG_FXML));
 	        AnchorPane page = (AnchorPane) loader.load();

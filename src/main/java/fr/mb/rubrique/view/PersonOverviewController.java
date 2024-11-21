@@ -137,8 +137,9 @@ public class PersonOverviewController {
     @FXML
     private void handleDeletePerson() {
         Person selectedPerson = personTable.getSelectionModel().getSelectedItem();
-        if (selectedPerson != null)
-            directoryBean.getContacts().remove(selectedPerson);
+        if (selectedPerson != null) 
+            //directoryBean.getContacts().remove(selectedPerson);
+        	directoryBean.removeContact(selectedPerson);
         else {
             AlertHelper.showError(
                 "No Selection",
@@ -157,8 +158,11 @@ public class PersonOverviewController {
     private void handleNewPerson() {
         Person tempPerson = new Person();
         boolean okClicked = mainApp.showPersonEditDialog(tempPerson);
-        if (okClicked)
-            mainApp.getPersonData().add(tempPerson);
+        if (okClicked) {
+            //mainApp.getPersonData().add(tempPerson);
+        	directoryBean.addContact(tempPerson);
+        }
+        
     }
     
     /**
@@ -173,7 +177,8 @@ public class PersonOverviewController {
         if (selectedPerson != null) {
             boolean okClicked = mainApp.showPersonEditDialog(selectedPerson);
             if (okClicked)
-                showPersonDetails(selectedPerson);
+                //showPersonDetails(selectedPerson);
+            	directoryBean.updateContact(selectedPerson);
         } else {
             AlertHelper.showError(
                 "No Selection",

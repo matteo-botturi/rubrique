@@ -54,10 +54,10 @@ public class DirectoryBean {
         this.filteredContacts = new FilteredList<>(contacts, p -> true);
         this.sortedContacts = new SortedList<>(filteredContacts);
         this.personSearched = new Person();
-        this.saved = (file != null);
+        setSaved(file != null);
 
         // Mark as unsaved when the contact list changes
-        contacts.addListener((ListChangeListener<Person>) change -> saved = false);
+        contacts.addListener((ListChangeListener<Person>) change -> /*saved = false*/ setSaved(false));
     }
     
     /**
@@ -160,12 +160,13 @@ public class DirectoryBean {
     public boolean isSaved() {
         return saved;
     }
+    
 
     /** @param saved the saved to set */
 	public void setSaved(boolean saved) {
-		this.saved = saved;
+		this.saved = saved;	
 	}
-
+	
     /** Saves all contacts to the associated file. */
     public void save() {
         if (file != null && contactDAO != null) {
@@ -182,7 +183,7 @@ public class DirectoryBean {
     public void addContact(Person person) {
         if (!contacts.contains(person)) {
             contacts.add(person);
-            this.saved = false;
+            setSaved(false);
         }
     }
     
@@ -196,7 +197,7 @@ public class DirectoryBean {
             int index = contacts.indexOf(personSelected);
             if (index != -1) {
                 contacts.set(index, updatedPerson);
-                this.saved = false;
+                setSaved(false);
             }
         }
     }
@@ -207,14 +208,21 @@ public class DirectoryBean {
      * @param person the Person object to remove
      */
     public void removeContact(Person person) {
-        contacts.remove(person);
-        this.saved = false;
+        if (person != null && contacts.contains(person)) {
+            contacts.remove(person);
+            setSaved(false);
+        }
     }
     
     /** Reloads contacts from the last save point*/
     public void reload() {
-        List<Person> allContacts = contactDAO.getAllContacts();
-        contacts.setAll(allContacts);
-        saved = true;
+        try {
+            List<Person> allContacts = contactDAO.getAllContacts();
+            contacts.clear();
+            contacts.addAll(allContacts);
+            setSaved(true);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to reload contacts: " + e.getMessage(), e);
+        }
     }
 }

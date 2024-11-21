@@ -3,6 +3,9 @@ package fr.mb.rubrique.utility;
 import fr.mb.rubrique.bean.DirectoryBean;
 import javafx.stage.Stage;
 
+/**
+ * Utility class for updating the title of the main application window.
+ */
 public class TitleUpdater {
 
     /** The default base title of the application */
@@ -22,8 +25,8 @@ public class TitleUpdater {
      * @param directoryBean The DirectoryBean that contains the current file state.
      * @param baseTitle The base title of the application.
      */
-    public static void updateTitle(Stage primaryStage, DirectoryBean directoryBean, String baseTitle) {
-        String title = generateTitle(directoryBean, baseTitle);
+    public static void updateTitle(Stage primaryStage, DirectoryBean directoryBean, String baseTitle, boolean isCenterOpened) {
+        String title = generateTitle(directoryBean, baseTitle, isCenterOpened);
         primaryStage.setTitle(title);
     }
 
@@ -33,8 +36,8 @@ public class TitleUpdater {
      * @param primaryStage The main application window.
      * @param directoryBean The DirectoryBean that contains the current file state.
      */
-    public static void updateTitle(Stage primaryStage, DirectoryBean directoryBean) {
-        updateTitle(primaryStage, directoryBean, DEFAULT_BASE_TITLE);
+    public static void updateTitle(Stage primaryStage, DirectoryBean directoryBean, boolean isCenterOpened) {
+        updateTitle(primaryStage, directoryBean, DEFAULT_BASE_TITLE, isCenterOpened);
     }
 
     /**
@@ -47,21 +50,20 @@ public class TitleUpdater {
      * @param baseTitle The base title of the application.
      * @return A formatted title string.
      */
-    private static String generateTitle(DirectoryBean directoryBean, String baseTitle) {
+    private static String generateTitle(DirectoryBean directoryBean, String baseTitle, boolean isCenterOpened) {
         String title = baseTitle != null ? baseTitle : DEFAULT_BASE_TITLE;
 
-        if (directoryBean != null ) {
-            String fileName = directoryBean.getFileName() != null
-                    ? directoryBean.getFile().getAbsolutePath()
-                    : DEFAULT_NEW_FILE_NAME;
+		if (directoryBean != null && isCenterOpened) {
 
-            title += " - " + fileName;
+			String fileName = directoryBean.getFileName() != null ? directoryBean.getFile().getAbsolutePath()
+					: DEFAULT_NEW_FILE_NAME;
 
-            if (!directoryBean.isSaved() && !title.endsWith("*")) {
-                title += "*";
-            }
-        }
+			title += " - " + fileName;
 
-        return title;
+			if (!directoryBean.isSaved() && !title.endsWith("*"))
+				title += "*";
+
+		}
+		return title;
     }
 }

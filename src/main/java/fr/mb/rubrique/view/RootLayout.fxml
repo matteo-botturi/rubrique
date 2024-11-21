@@ -7,7 +7,7 @@
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane prefHeight="400.0" prefWidth="600.0" stylesheets="@DarkTheme.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.mb.rubrique.view.MenuController">
+<BorderPane prefHeight="400.0" prefWidth="600.0" styleClass="background" stylesheets="@DarkTheme.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fr.mb.rubrique.view.MenuController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -23,11 +23,15 @@
                         <MenuItem fx:id="recentFile3" mnemonicParsing="false" text="File 3" />
                         <MenuItem fx:id="recentFile4" mnemonicParsing="false" text="File 4" />
                         <MenuItem fx:id="recentFile5" mnemonicParsing="false" text="File 5" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem fx:id="clearRecentFilesMenuItem" mnemonicParsing="false" text="Clear" />
                     </items>
                   </Menu>
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem fx:id="saveMenuItem" mnemonicParsing="false" onAction="#handleSave" text="Save" />
                   <MenuItem fx:id="saveAsMenuItem" mnemonicParsing="false" onAction="#handleSaveAs" text="Save As" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="reloadMenuItem" mnemonicParsing="false" onAction="#handleReload" text="Reload" />
                   <SeparatorMenuItem mnemonicParsing="false" />
               <MenuItem fx:id="closeMenuItem" mnemonicParsing="false" onAction="#handleClose" text="Close" />
                   <MenuItem fx:id="exitMenuItem" mnemonicParsing="false" onAction="#handleExit" text="Exit" />
@@ -35,7 +39,7 @@
           </Menu>
           <Menu mnemonicParsing="false" text="Help">
             <items>
-              <MenuItem mnemonicParsing="false" text="About" />
+              <MenuItem fx:id="aboutItem" mnemonicParsing="false" onAction="#handleAbout" text="About" />
             </items>
           </Menu>
         </menus>
