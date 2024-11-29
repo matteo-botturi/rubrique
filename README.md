@@ -4,6 +4,12 @@ A JavaFX application for managing contacts efficiently. This app provides functi
 
 ---
 
+## **Demo Video**
+
+![Demo Video](demo/demo.gif)
+
+---
+
 ## **Features**
 
 - **Contact Management**: 
@@ -54,6 +60,10 @@ A JavaFX application for managing contacts efficiently. This app provides functi
 - Open an existing contact file.
 
 ---
+
+## **To-Do**
+- **Save as PDF**: Add functionality to export the contact list as a PDF file.
+- **Unified Search**: Merge the name and surname search fields into a single field for a more streamlined experience. Update the filtering logic to combine predicates for searching by both name and surname.
 
 ## **Project Structure**
 ```
